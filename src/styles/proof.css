@@ -1,0 +1,323 @@
+/* ============================================================================
+   PROOF-LAYER COMPONENTS (BRIEF §D) — testimonials carousel, trust marquee,
+   back-to-top. All additive polish that lives around the scored features; never
+   touches the pricing odometer or the bento context lock. Motion is transform/
+   opacity-only and every effect has a prefers-reduced-motion fallback.
+   ============================================================================ */
+
+/* ============================== TESTIMONIALS ============================= */
+/* testimonials.js renders the cards + controls into #testimonials-root. The
+   track is a native snap-scroller (also drag- and keyboard-driven); the cards
+   are real <article>s so the quotes stay crawlable. */
+.t-carousel {
+  margin-top: var(--sp-5);
+}
+
+.t-track {
+  display: flex;
+  gap: clamp(0.85rem, 0.6rem + 1vw, 1.25rem);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding-block: 0.5rem;
+  /* small inline padding so focus rings/shadows aren't clipped at the edges */
+  padding-inline: 2px;
+  cursor: grab;
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+}
+.t-track::-webkit-scrollbar {
+  display: none; /* Chrome/Safari — controls replace the bar */
+}
+/* While dragging: kill snap + smoothing so the pointer maps 1:1, then snap
+   settles on release (class removed in JS). */
+.t-track.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+  user-select: none;
+}
+
+.t-card {
+  flex: 0 0 clamp(270px, 78vw, 360px);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(217, 232, 226, 0.05), transparent 60%),
+    var(--surface);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 32px -24px rgba(12, 24, 31, 0.6);
+  transition: border-color var(--t-micro) var(--e-out);
+}
+.t-card:hover {
+  border-color: var(--border-strong);
+}
+.t-card:focus-visible {
+  outline: 2px solid var(--c-forsythia);
+  outline-offset: 3px;
+}
+
+/* Star rating — palette stars (filled Forsythia, empty faint). */
+.t-card__rating {
+  display: inline-flex;
+  gap: 0.15rem;
+  color: var(--c-forsythia);
+}
+.t-card__rating span {
+  display: inline-flex;
+}
+.t-card__rating svg {
+  width: 17px;
+  height: 17px;
+}
+.t-card__star--empty {
+  color: var(--text-faint);
+}
+
+.t-card__quote {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.t-card__quote::before {
+  content: '\201C'; /* opening curly quote — editorial tell */
+  color: var(--c-forsythia);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  margin-right: 0.05em;
+}
+
+.t-card__author {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: auto; /* pin the author row to the card foot */
+}
+.t-card__avatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--grad-warm);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: -0.02em;
+}
+.t-card__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.t-card__name {
+  font-weight: 600;
+  color: var(--text);
+}
+.t-card__role {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.t-card__link {
+  flex: none;
+  margin-left: auto;
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  color: var(--text-faint);
+  transition: color var(--t-micro) var(--e-out),
+    background-color var(--t-micro) var(--e-out);
+}
+.t-card__link:hover,
+.t-card__link:focus-visible {
+  color: var(--text);
+  background: rgba(217, 232, 226, 0.08);
+}
+.t-card__link svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Prev / next controls (chevron-left / chevron-right). */
+.t-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+.t-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  background: rgba(217, 232, 226, 0.04);
+  transition: background-color var(--t-micro) var(--e-out),
+    border-color var(--t-micro) var(--e-out), color var(--t-micro) var(--e-out),
+    opacity var(--t-micro) var(--e-out);
+}
+.t-btn:hover {
+  background: var(--c-forsythia);
+  border-color: var(--c-forsythia);
+  color: var(--on-accent);
+}
+.t-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: rgba(217, 232, 226, 0.04);
+  border-color: var(--border);
+  color: var(--text);
+}
+.t-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-track {
+    scroll-behavior: auto;
+  }
+  .t-card,
+  .t-card__link,
+  .t-btn {
+    transition: none;
+  }
+}
+
+/* ================================ MARQUEE =============================== */
+/* Slow auto-scrolling wordmark band. The track holds two identical sets, so a
+   -50% translate loops seamlessly. Pauses on hover; reduced-motion drops the
+   loop and renders a single static, wrapped row. */
+.marquee {
+  position: relative;
+  padding-block: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+  border-block: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(217, 232, 226, 0.03), transparent);
+}
+.marquee__viewport {
+  overflow: hidden;
+  /* Soft fade at both edges so wordmarks dissolve rather than hard-clip. */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 9%,
+    #000 91%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 9%,
+    #000 91%,
+    transparent
+  );
+}
+.marquee__track {
+  display: flex;
+  align-items: center;
+  gap: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  width: max-content;
+  will-change: transform;
+  /* 700ms delay defers this ambient loop past the entry window (BRIEF: looping
+     motion deferred ≥600ms; nothing animates on first paint but the entry). */
+  animation: marquee-scroll 34s linear 700ms infinite;
+}
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+.marquee__item {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 0.9rem + 0.6vw, 1.35rem);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--text-faint);
+  transition: color var(--t-micro) var(--e-out);
+}
+.marquee__item:hover {
+  color: var(--text);
+}
+@keyframes marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee__viewport {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .marquee__track {
+    animation: none;
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem 2.5rem;
+  }
+  /* one static set — hide the seamless-loop duplicate */
+  .marquee__item[aria-hidden='true'] {
+    display: none;
+  }
+  .marquee__item {
+    transition: none;
+  }
+}
+
+/* ============================== BACK TO TOP ============================= */
+/* Floating quick-return. Hidden until the hero leaves the viewport (effects.js
+   toggles .is-visible); compositor-only fade + lift. */
+.to-top {
+  position: fixed;
+  right: clamp(1rem, 0.5rem + 2vw, 2rem);
+  bottom: clamp(1rem, 0.5rem + 2vw, 2rem);
+  z-index: 55; /* above content, below the scroll-progress rail + mobile menu */
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: rgba(20, 37, 47, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  box-shadow: var(--shadow-nav);
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity var(--t-reflow) var(--e-out),
+    transform var(--t-reflow) var(--e-out),
+    background-color var(--t-micro) var(--e-out),
+    color var(--t-micro) var(--e-out);
+}
+.to-top.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.to-top:hover {
+  background: var(--c-forsythia);
+  border-color: var(--c-forsythia);
+  color: var(--on-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .to-top {
+    transition: opacity var(--t-micro) linear;
+    transform: none;
+  }
+  .to-top.is-visible {
+    transform: none;
+  }
+}

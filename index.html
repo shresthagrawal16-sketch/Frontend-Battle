@@ -54,6 +54,29 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- ===== Critical CSS (inline) =====
+         Makes the *very first* paint on-brand: Oceanic Noir (#172B36) field,
+         Arctic Powder text, and the real font fallback stack — so there's no
+         white/unstyled flash before the linked stylesheet below parses.
+         Deliberately minimal: NO body{opacity:0} gate, so it never hides the
+         page or blocks TTI. The full stylesheet (background gradients, layout)
+         layers on top with zero box-model change → no layout shift. -->
+    <style>
+      html { background: #172b36; }
+      body {
+        background: #172b36;
+        color: #f1f6f4;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+    </style>
+
+    <!-- ===== Global stylesheet =====
+         Real render-blocking <link> → the full cascade applies before first
+         paint and the page renders fully WITHOUT JS. Vite inlines the @imports
+         and content-hashes this at build. (Previously pulled in via main.js,
+         which is what caused the FOUC on reload.) -->
+    <link rel="stylesheet" href="/src/styles/main.css" />
   </head>
 
   <body>
@@ -110,9 +133,73 @@
             </button>
             <a class="btn btn--ghost" href="#proof">Sign in</a>
             <a class="btn btn--primary" href="#pricing">Start free</a>
+
+            <!-- Hamburger (≤860px). aria-expanded + aria-controls wire it to the
+                 slide-in menu below; the three lines morph to an X in CSS while
+                 open. nav.js handles focus-trap / Escape / scroll-lock. -->
+            <button
+              class="icon-btn nav__burger"
+              type="button"
+              aria-label="Open menu"
+              aria-expanded="false"
+              aria-controls="mobile-menu"
+            >
+              <span class="nav__burger-box" aria-hidden="true">
+                <span class="nav__burger-line"></span>
+                <span class="nav__burger-line"></span>
+                <span class="nav__burger-line"></span>
+              </span>
+            </button>
           </div>
         </div>
       </nav>
+
+      <!-- ===================== MOBILE SLIDE-IN MENU ====================== -->
+      <!-- Accessible overlay menu for ≤860px. Closed state is visibility:hidden
+           (so its links leave the tab order); open slides the panel in via
+           transform + fades the backdrop — CSS transitions only. nav.js manages
+           aria, focus-trap, Escape, body scroll-lock, and resize-to-desktop. -->
+      <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu__backdrop" data-menu-close></div>
+        <nav class="mobile-menu__panel" aria-label="Mobile">
+          <div class="mobile-menu__bar">
+            <span class="mobile-menu__brand">
+              <span class="nav__logo" aria-hidden="true">
+                <svg viewBox="0 0 16 16" width="26" height="26" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8.372 1.349a.75.75 0 0 0-.744 0l-4.81 2.748L8 7.131l5.182-3.034zM14 5.357L8.75 8.43v6.005l4.872-2.784A.75.75 0 0 0 14 11zm-6.75 9.078V8.43L2 5.357V11c0 .27.144.518.378.651z"
+                  />
+                </svg>
+              </span>
+              <span class="nav__name">Strata</span>
+            </span>
+            <!-- x-mark close -->
+            <button class="icon-btn mobile-menu__close" type="button" aria-label="Close menu" data-menu-close>
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <ul class="mobile-menu__links">
+            <li><a href="#features" data-menu-link>Platform</a></li>
+            <li><a href="#pricing" data-menu-link>Pricing</a></li>
+            <li><a href="#proof" data-menu-link>Customers</a></li>
+            <li><a href="#footer" data-menu-link>Company</a></li>
+          </ul>
+          <div class="mobile-menu__actions">
+            <a class="btn btn--ghost btn--lg" href="#proof" data-menu-link>Sign in</a>
+            <a class="btn btn--primary btn--lg" href="#pricing" data-menu-link>Start free</a>
+          </div>
+        </nav>
+      </div>
     </header>
 
     <!-- ============================== MAIN ============================== -->
@@ -197,6 +284,36 @@
         </div>
       </section>
 
+      <!-- --------------------------- TRUST STRIP ------------------------ -->
+      <!-- Slow auto-scrolling wordmark marquee (pure CSS transform loop).
+           Pauses on hover; reduced-motion renders it static (animation:none).
+           Real crawlable text behind an sr-only heading; duplicated track is
+           aria-hidden so AT reads each name once. -->
+      <section class="marquee" aria-labelledby="marquee-title">
+        <h2 id="marquee-title" class="sr-only">Trusted by leading data teams</h2>
+        <div class="marquee__viewport">
+          <div class="marquee__track">
+            <span class="marquee__item">Nebula</span>
+            <span class="marquee__item">Vertex Labs</span>
+            <span class="marquee__item">Corewave</span>
+            <span class="marquee__item">Lumen</span>
+            <span class="marquee__item">Northwind</span>
+            <span class="marquee__item">Atlas Data</span>
+            <span class="marquee__item">Quanta</span>
+            <span class="marquee__item">Helios</span>
+            <!-- Duplicate set → seamless -50% loop. aria-hidden: read once. -->
+            <span class="marquee__item" aria-hidden="true">Nebula</span>
+            <span class="marquee__item" aria-hidden="true">Vertex Labs</span>
+            <span class="marquee__item" aria-hidden="true">Corewave</span>
+            <span class="marquee__item" aria-hidden="true">Lumen</span>
+            <span class="marquee__item" aria-hidden="true">Northwind</span>
+            <span class="marquee__item" aria-hidden="true">Atlas Data</span>
+            <span class="marquee__item" aria-hidden="true">Quanta</span>
+            <span class="marquee__item" aria-hidden="true">Helios</span>
+          </div>
+        </div>
+      </section>
+
       <!-- --------------------------- FEATURES --------------------------- -->
       <!-- Phase C mounts the Bento↔Accordion here (single DOM, CSS-driven swap). -->
       <section id="features" class="section" aria-labelledby="features-title" data-spotlight>
@@ -258,6 +375,11 @@
               work into minutes of configuration.
             </p>
           </div>
+
+          <!-- Testimonials carousel — testimonials.js renders <article> cards
+               into this root: snap-scroll + drag + keyboard, chevron-left/right
+               controls. Empty + harmless if JS fails. -->
+          <div id="testimonials-root" data-reveal></div>
 
           <!-- Stats strip — real, crawlable numbers in the HTML; effects.js
                re-counts them from 0 on scroll-in (IntersectionObserver, ~1000ms
@@ -346,9 +468,24 @@
 
       <div class="container footer__base">
         <p>&copy; 2026 Strata, Inc. All rights reserved.</p>
+        
         <p class="footer__built">Built for speed — Vanilla JS &amp; Vite.</p>
       </div>
     </footer>
+
+    <!-- Floating back-to-top. Hidden until the hero scrolls away (effects.js
+         toggles .is-visible via IntersectionObserver); compositor-only fade +
+         lift. chevron-up-solid icon. -->
+    <button class="to-top" type="button" aria-label="Back to top">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M11.47 7.72a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 1 1-1.06 1.06L12 9.31l-6.97 6.97a.75.75 0 0 1-1.06-1.06l7.5-7.5Z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </button>
 
     <script type="module" src="/src/main.js"></script>
   </body>

@@ -115,9 +115,39 @@ function initStats() {
   nums.forEach((el) => io.observe(el));
 }
 
-/** Public entry — wire all three after the DOM (and feature mounts) are ready. */
+/* ---------------------------------------------------------------------------
+ * Back-to-top — a floating button that appears once the hero scrolls away
+ * (IntersectionObserver, no scroll spam) and returns to the top on click.
+ * Compositor-only show/hide (opacity + transform in CSS). Smooth scroll drops
+ * to instant under reduced-motion; no-IO just shows the button.
+ * ------------------------------------------------------------------------- */
+function initBackToTop() {
+  const btn = document.querySelector('.to-top');
+  const hero = document.getElementById('hero');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReduced() ? 'auto' : 'smooth',
+    });
+  });
+
+  if (!hero || !hasIO()) {
+    btn.classList.add('is-visible'); // can't observe → always available
+    return;
+  }
+  const io = new IntersectionObserver(
+    ([entry]) => btn.classList.toggle('is-visible', !entry.isIntersecting),
+    { threshold: 0 },
+  );
+  io.observe(hero);
+}
+
+/** Public entry — wire all effects after the DOM (and feature mounts) are ready. */
 export function mountEffects() {
   initNavScroll();
   initReveal();
   initStats();
+  initBackToTop();
 }

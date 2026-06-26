@@ -195,6 +195,12 @@ body {
   color: var(--text);
 }
 
+/* Scroll-lock the page behind the open mobile menu (nav.js toggles the flag). */
+html.is-menu-open,
+html.is-menu-open body {
+  overflow: hidden;
+}
+
 /* ---- Accessibility helpers ---- */
 .sr-only {
   position: absolute;

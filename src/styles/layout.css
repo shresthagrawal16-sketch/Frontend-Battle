@@ -69,17 +69,178 @@
   gap: 0.6rem;
 }
 
-/* Responsive nav: collapse secondary chrome on small screens.
-   Full mobile menu is out of scope for Phase A — keep brand + primary CTA. */
+/* --------------------------- HAMBURGER TRIGGER ------------------------- */
+/* Three lines that morph into an X while the menu is open (transform-only, so
+   compositor-friendly). Hidden on desktop — only shown ≤860px below. */
+.nav__burger {
+  display: none;
+}
+.nav__burger-box {
+  position: relative;
+  width: 20px;
+  height: 14px;
+}
+.nav__burger-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform var(--t-micro) var(--e-out),
+    opacity var(--t-micro) var(--e-out);
+}
+.nav__burger-line:nth-child(1) {
+  top: 0;
+}
+.nav__burger-line:nth-child(2) {
+  top: 6px;
+}
+.nav__burger-line:nth-child(3) {
+  top: 12px;
+}
+/* While the menu is open the trigger reflects state (set by nav.js). */
+.nav__burger[aria-expanded='true'] .nav__burger-line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.nav__burger[aria-expanded='true'] .nav__burger-line:nth-child(2) {
+  opacity: 0;
+}
+.nav__burger[aria-expanded='true'] .nav__burger-line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Responsive nav: collapse the link bar to a hamburger ≤860px. Inline CTAs
+   move into the slide-in menu; scope the hides to `.nav__actions` so the hero
+   and footer buttons of the same class are never affected. */
 @media (max-width: 860px) {
   .nav__links {
     display: none;
   }
+  .nav__actions .btn--ghost {
+    display: none;
+  }
+  .nav__burger {
+    display: inline-grid;
+  }
 }
 @media (max-width: 560px) {
   .nav__search,
-  .btn--ghost {
-    display: none;
+  .nav__actions .btn--primary {
+    display: none; /* leave just brand + hamburger */
+  }
+}
+
+/* ====================== MOBILE SLIDE-IN MENU (≤860px) ==================== */
+/* Closed: the whole overlay is visibility:hidden (its links leave the tab
+   order) and the panel is parked off-screen. Open: backdrop fades in, panel
+   slides to 0 — transform + opacity only. nav.js toggles `.is-open` and the
+   focus-trap / Escape / scroll-lock around it. */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 80; /* above header (50) and the scroll-progress rail (60) */
+  visibility: hidden;
+  /* Clip the off-screen (translateX 100%) panel so the closed menu can never
+     add horizontal page scroll. The container is exactly viewport-sized. */
+  overflow: hidden;
+  /* Hold visibility through the slide-out, then hide (removes from tab order). */
+  transition: visibility 0s linear var(--t-reflow);
+}
+.mobile-menu.is-open {
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+.mobile-menu__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(12, 24, 31, 0.6);
+  opacity: 0;
+  transition: opacity var(--t-reflow) var(--e-inout);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.mobile-menu.is-open .mobile-menu__backdrop {
+  opacity: 1;
+}
+
+.mobile-menu__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(86vw, 360px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.1rem var(--gutter) 2rem;
+  background: var(--surface-2);
+  border-left: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-pop);
+  transform: translateX(100%);
+  transition: transform var(--t-reflow) var(--e-inout);
+  overflow-y: auto;
+}
+.mobile-menu.is-open .mobile-menu__panel {
+  transform: translateX(0);
+}
+
+.mobile-menu__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 46px;
+}
+.mobile-menu__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.mobile-menu__close {
+  color: var(--text);
+}
+
+.mobile-menu__links {
+  display: grid;
+  gap: 0.25rem;
+}
+.mobile-menu__links a {
+  display: block;
+  padding: 0.85rem 0.25rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  transition: color var(--t-micro) var(--e-out),
+    padding-left var(--t-micro) var(--e-out);
+}
+.mobile-menu__links a:hover,
+.mobile-menu__links a:focus-visible {
+  color: var(--c-forsythia);
+  padding-left: 0.6rem;
+}
+
+.mobile-menu__actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: auto; /* pin CTAs to the bottom of the panel */
+}
+.mobile-menu__actions .btn {
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu__backdrop,
+  .mobile-menu__panel,
+  .nav__burger-line,
+  .mobile-menu__links a {
+    transition: none;
   }
 }
 

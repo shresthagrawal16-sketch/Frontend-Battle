@@ -12,19 +12,23 @@
  * Keeping that boundary strict is what guarantees "changing currency/billing
  * touches only the targeted text nodes, zero parent reflow" under DevTools.
  *
- * PHASE A (current): import global styles + flag the document ready. There is
- * deliberately NO animation logic here — the hero entry orchestration is 100%
- * CSS (see hero.css), so it cannot block TTI or DOM indexing.
+ * PHASE A (current): flag the document ready. Global styles are now loaded via
+ * a render-blocking <link> in index.html <head> (NOT imported here), so the
+ * cascade applies before first paint and the page renders fully without JS —
+ * no FOUC on reload. There is deliberately NO animation logic here either — the
+ * hero entry orchestration is 100% CSS (see hero.css), so it cannot block TTI
+ * or DOM indexing.
  *
  * PHASE B → ./pricing/pricing.js mounts into #pricing-root
  * PHASE C → ./modules/bento.js   mounts into #features (#bento-root)
  */
-import './styles/main.css';
 import { mountPricing } from './pricing/pricing.js';
 import { mountBento } from './modules/bento.js';
 import { mountHeroParallax } from './modules/hero.js';
 import { mountEffects } from './modules/effects.js';
 import { mountSignature } from './modules/signature.js';
+import { mountNav } from './modules/nav.js';
+import { mountTestimonials } from './modules/testimonials.js';
 
 /**
  * Mark the document as hydrated. The CSS entry animation does NOT depend on
@@ -39,6 +43,12 @@ function boot() {
 
   // --- Phase C: bento (desktop) ↔ accordion (mobile) with context lock ---
   mountBento(document.querySelector('#bento-root'));
+
+  // --- Proof: testimonials carousel (snap-scroll + drag + keyboard) ---
+  mountTestimonials(document.querySelector('#testimonials-root'));
+
+  // --- Chrome: accessible mobile slide-in menu (≤860px hamburger) ---
+  mountNav();
 
   // --- Polish layer: hero parallax/tilt + scroll-reveal, nav frost, count-up.
   //     Pure enhancement — runs after the feature mounts, never blocks the
