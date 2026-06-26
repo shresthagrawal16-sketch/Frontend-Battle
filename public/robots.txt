@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://strata.example.com/sitemap.xml
+Sitemap: https://frontend-battle-beta.vercel.app/sitemap.xml
