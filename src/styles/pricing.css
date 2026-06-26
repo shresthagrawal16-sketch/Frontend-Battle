@@ -1,0 +1,295 @@
+/* ============================================================================
+   PRICING (Feature 1) — cards, segmented controls, and the isolated odometer.
+   Every animated property here is transform / opacity / color only. Nothing
+   that animates touches geometry, so flipping billing or currency cannot
+   reflow the layout (BRIEF §7 — the 15-pt guardrail).
+   ============================================================================ */
+
+.pricing {
+  margin-top: 2.5rem;
+}
+
+/* ------------------------------ CONTROLS ------------------------------- */
+.pricing__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: clamp(2rem, 1.5rem + 1.5vw, 3rem);
+}
+
+/* Segmented pill. Equal-width radios with a sliding accent indicator behind
+   the active one. The indicator moves via translateX (compositor) — the pills
+   never resize, so no reflow. */
+.seg {
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(217, 232, 226, 0.06);
+  border: 1px solid var(--border-strong);
+}
+
+.seg__indicator {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--n));
+  border-radius: var(--radius-pill);
+  background: var(--c-forsythia); /* active state = Forsythia accent */
+  /* Tab/segment indicator: translateX 250ms ease-out (BRIEF §6). */
+  transform: translateX(calc(100% * var(--idx, 0)));
+  transition: transform 250ms var(--e-out);
+}
+
+.seg__btn {
+  position: relative;
+  z-index: 1;
+  padding: 0.5rem 1.05rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text-muted);
+  transition: color var(--t-micro) var(--e-out);
+}
+.seg--currency .seg__btn {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+.seg__btn[aria-checked='true'] {
+  color: var(--on-accent); /* dark text on Forsythia = 9:1+ */
+}
+.seg__btn:hover:not([aria-checked='true']) {
+  color: var(--text);
+}
+
+/* "−20%" flag on the annual segment. Inherits color so it stays legible on the
+   accent when active, muted-accent when inactive. */
+.seg__save {
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  font-weight: 700;
+}
+.seg__btn:not([aria-checked='true']) .seg__save {
+  color: var(--c-forsythia);
+}
+
+/* -------------------------------- GRID -------------------------------- */
+.pricing__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 0.5rem + 1.4vw, 1.5rem);
+  align-items: stretch;
+}
+
+/* ------------------------------- CARDS -------------------------------- */
+.tier {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: clamp(1.5rem, 1.1rem + 1.4vw, 2.1rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Popular tier: Forsythia border + a faint warm wash from the signature
+   gradient family. Static — hovering a card does not scale or shadow it. */
+.tier--popular {
+  border-color: var(--c-forsythia);
+  background:
+    linear-gradient(180deg, rgba(255, 200, 1, 0.08), transparent 42%),
+    var(--surface);
+}
+
+.tier__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 1.9rem;
+}
+.tier__name {
+  font-family: var(--font-mono);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.tier__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--c-forsythia);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tier__badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.tier__blurb {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 34ch;
+}
+
+/* ----------------------------- PRICE ROW ------------------------------ */
+.tier__price-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.price {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 1.5rem + 2vw, 2.9rem);
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Currency symbol sits OUTSIDE the rolling columns. Fixed-width box so swapping
+   ₹ / $ / € on currency change cannot shift the digits to its right. */
+.price__symbol {
+  display: inline-block;
+  min-width: 0.66em;
+  text-align: right;
+  margin-right: 0.05em;
+}
+
+/* The /mo · /yr suffix (also fixed character count → constant width). */
+.price__suffix {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ----------------------------- ODOMETER ------------------------------- */
+/* Each "window" is a fixed-size overflow:hidden viewport; inside it a vertical
+   strip of stacked cells is moved by translateY to bring the target cell into
+   view. translateY only → GPU-composited, never reflows. The translate distance
+   is expressed in `em` (= one cell height), derived from `--odo-y` (an index),
+   so NO layout measurement is ever needed. */
+.odo {
+  display: inline-flex;
+  align-items: stretch;
+}
+.odo__win {
+  position: relative;
+  overflow: hidden;
+  height: 1em;
+}
+.odo__win--digit {
+  width: 0.6em; /* JetBrains Mono digit advance ≈ 0.6em (tabular) */
+}
+.odo__win--sep {
+  width: 0.32em;
+}
+.odo__strip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transform: translateY(calc(var(--odo-y, 0) * -1em));
+  /* ~350ms ease-out roll, staggered left→right via per-column delay (BRIEF §7). */
+  transition: transform var(--t-reflow) var(--e-out);
+  transition-delay: var(--col-delay, 0ms);
+}
+.odo__cell {
+  height: 1em;
+  line-height: 1em;
+  text-align: center;
+}
+.odo__win--sep .odo__cell {
+  text-align: left;
+}
+
+/* --------------------------- NOTE / FEATURES -------------------------- */
+/* Reserved min-height so swapping "Billed monthly" ↔ "Save 20% · billed
+   annually" can never change the card's height (no vertical reflow). */
+.tier__note {
+  min-height: 2.4em;
+  margin-top: -0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.tier__features {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.1rem;
+}
+.tier__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+.tier__feature svg {
+  width: 18px;
+  height: 18px;
+  color: var(--c-forsythia);
+  flex: none;
+  margin-top: 0.05em;
+}
+
+/* CTA pinned to the bottom so all three cards align regardless of feature count. */
+.tier__cta {
+  margin-top: auto;
+}
+.btn--block {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ------------------------------ RESPONSIVE ---------------------------- */
+@media (max-width: 920px) {
+  .pricing__grid {
+    grid-template-columns: 1fr;
+    max-width: 30rem;
+    margin-inline: auto;
+  }
+}
+@media (max-width: 420px) {
+  .pricing__controls {
+    flex-direction: column;
+    align-items: center;
+  }
+  .seg {
+    width: 100%;
+    max-width: 18rem;
+  }
+}
+
+/* --------------------------- REDUCED MOTION --------------------------- */
+/* Snap instantly instead of rolling / sliding (BRIEF §7). */
+@media (prefers-reduced-motion: reduce) {
+  .odo__strip,
+  .seg__indicator {
+    transition-duration: 0ms;
+    transition-delay: 0ms;
+  }
+}

@@ -16,10 +16,11 @@
  * deliberately NO animation logic here — the hero entry orchestration is 100%
  * CSS (see hero.css), so it cannot block TTI or DOM indexing.
  *
- * PHASE B → ./modules/pricing.js mounts into #pricing-root
+ * PHASE B → ./pricing/pricing.js mounts into #pricing-root
  * PHASE C → ./modules/bento.js   mounts into #features (#bento-root)
  */
 import './styles/main.css';
+import { mountPricing } from './pricing/pricing.js';
 
 /**
  * Mark the document as hydrated. The CSS entry animation does NOT depend on
@@ -29,10 +30,11 @@ import './styles/main.css';
 function boot() {
   document.documentElement.classList.add('is-ready');
 
-  // --- Phase B / C mount points (wired in later messages) ---
-  // import { mountPricing } from './modules/pricing.js';
-  // import { mountBento }   from './modules/bento.js';
-  // mountPricing(document.querySelector('#pricing-root'));
+  // --- Phase B: dynamic pricing matrix + isolated currency/billing switch ---
+  mountPricing(document.querySelector('#pricing-root'));
+
+  // --- Phase C (wired later): bento ↔ accordion ---
+  // import { mountBento } from './modules/bento.js';
   // mountBento(document.querySelector('#features'));
 }
 
