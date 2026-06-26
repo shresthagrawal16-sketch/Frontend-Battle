@@ -60,6 +60,13 @@
     <!-- Skip link: keyboard accessibility (counts toward a11y/SEO hygiene). -->
     <a class="skip-link" href="#main">Skip to content</a>
 
+    <!-- Scroll-progress rail pinned to the very top edge. Its inner bar is
+         driven by a single transform: scaleX() (compositor-only) in
+         signature.js. Decorative + pointer-transparent. -->
+    <div class="scroll-progress" aria-hidden="true">
+      <span class="scroll-progress__bar"></span>
+    </div>
+
     <!-- Scroll sentinel: when this 1px marker leaves the viewport the sticky nav
          deepens its frost (see effects.js). No scroll listeners → no jank. -->
     <div class="scroll-sentinel" aria-hidden="true"></div>
@@ -111,7 +118,7 @@
     <!-- ============================== MAIN ============================== -->
     <main id="main">
       <!-- ----------------------------- HERO ----------------------------- -->
-      <section id="hero" class="hero" aria-labelledby="hero-title">
+      <section id="hero" class="hero" aria-labelledby="hero-title" data-spotlight>
         <!-- Fake-3D stage: layered parallax planes (glow · mesh · floating
              shards). Decorative only — aria-hidden, pointer-events:none, sits
              behind the content. Motion is driven by CSS vars from hero.js. -->
@@ -155,6 +162,10 @@
             </span>
           </div>
         </div>
+        <!-- Cursor spotlight: a soft warm radial that tracks the pointer (CSS
+             vars written by signature.js). Sits above the parallax stage, below
+             the copy; pointer-transparent + off on touch/reduced-motion. -->
+        <div class="spotlight" aria-hidden="true"></div>
         <div class="container hero__inner">
           <p class="hero__eyebrow anim-item">AI-Driven Data Automation Platform</p>
           <h1 id="hero-title" class="hero__title anim-item">
@@ -188,10 +199,14 @@
 
       <!-- --------------------------- FEATURES --------------------------- -->
       <!-- Phase C mounts the Bento↔Accordion here (single DOM, CSS-driven swap). -->
-      <section id="features" class="section" aria-labelledby="features-title">
+      <section id="features" class="section" aria-labelledby="features-title" data-spotlight>
         <div class="aura aura--head" aria-hidden="true"></div>
+        <!-- Cursor spotlight for the bento: warm radial behind the cells, so the
+             gutters and surface glow toward the pointer. Paint-only, sits below
+             the grid (z-0), driven by signature.js. -->
+        <div class="spotlight" aria-hidden="true"></div>
         <div class="container">
-          <div class="section__intro" data-reveal>
+          <div class="section__intro" data-reveal-group>
             <p class="section__eyebrow">Platform</p>
             <h2 id="features-title" class="section__title">
               One platform for the entire data lifecycle
@@ -214,7 +229,7 @@
         <!-- Centred glow that haloes the popular (middle) pricing card. -->
         <div class="aura aura--pop" aria-hidden="true"></div>
         <div class="container">
-          <div class="section__intro" data-reveal>
+          <div class="section__intro" data-reveal-group>
             <p class="section__eyebrow">Pricing</p>
             <h2 id="pricing-title" class="section__title">
               Pricing that scales with your data, not your headcount
@@ -235,7 +250,7 @@
       <section id="proof" class="section" aria-labelledby="proof-title">
         <div class="aura aura--head" aria-hidden="true"></div>
         <div class="container">
-          <div class="section__intro" data-reveal>
+          <div class="section__intro" data-reveal-group>
             <p class="section__eyebrow">Proof</p>
             <h2 id="proof-title" class="section__title">Teams ship faster on Strata</h2>
             <p class="section__lede">

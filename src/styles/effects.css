@@ -161,3 +161,165 @@ html.reveal-on [data-reveal].is-visible {
     linear-gradient(135deg, var(--c-forsythia), var(--c-saffron)) border-box;
   box-shadow: var(--shadow-pop);
 }
+
+/* ===========================================================================
+   SIGNATURE INTERACTIONS — the "alive" layer (see src/modules/signature.js).
+   All compositor/paint-only, all reduced-motion + touch aware, all outside the
+   scored pricing/bento internals (we only decorate the chrome around them).
+   =========================================================================== */
+
+/* ---------------------------- CURSOR SPOTLIGHT ------------------------- */
+/* A soft warm radial that tracks the pointer across the hero and the bento.
+   signature.js writes only --spot-x / --spot-y (percentages); the gradient is
+   painted here, so the effect relocates a paint and never animates a property.
+   Pointer-transparent, sits behind the copy/cards (z-0). Fades in only while
+   the region is hovered (`.is-spotlit`), and is removed entirely on touch /
+   reduced-motion. */
+.spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 380ms var(--e-out);
+  background: radial-gradient(
+    440px 440px at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(255, 200, 1, 0.12),
+    rgba(255, 153, 50, 0.06) 38%,
+    transparent 64%
+  );
+}
+[data-spotlight].is-spotlit .spotlight {
+  opacity: 1;
+}
+/* Calm fallback: the cursor glow simply never appears on touch / reduced-motion
+   (signature.js also attaches no listeners in those cases). */
+@media (hover: none), (pointer: coarse) {
+  .spotlight {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spotlight {
+    display: none;
+  }
+}
+
+/* ------------------------------ MAGNETIC CTAs -------------------------- */
+/* signature.js sets a small `transform: translate()` toward the cursor on
+   hover; this transition eases the follow and the snap-back to 0 on leave.
+   We re-declare the button's colour transitions so adding `transform` doesn't
+   drop them. (Class is only added on fine-pointer + motion-safe.) */
+.btn.is-magnetic {
+  transition: transform 200ms var(--e-out),
+    background-color var(--t-micro) var(--e-out),
+    border-color var(--t-micro) var(--e-out),
+    color var(--t-micro) var(--e-out);
+  will-change: transform;
+}
+
+/* ----------------------------- SCROLL PROGRESS ------------------------- */
+/* A thin Forsythia rail at the very top; its inner bar is scaled on the X axis
+   to the page's scroll fraction (compositor-only). Sits above the nav (z-60). */
+.scroll-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 60;
+  pointer-events: none;
+}
+.scroll-progress__bar {
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: var(--c-forsythia);
+  box-shadow: 0 0 10px rgba(255, 200, 1, 0.55);
+  transition: transform 80ms linear;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress__bar {
+    transition: none; /* track scroll exactly, no smoothing */
+  }
+}
+
+/* ------------------------- SECTION-AWARE NAV SPY ----------------------- */
+/* signature.js flags the link whose section owns the viewport centre; a
+   Forsythia underline scales in beneath it (transform-only). */
+.nav__links a {
+  position: relative;
+}
+.nav__links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.45rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--c-forsythia);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--t-micro) var(--e-out);
+}
+.nav__links a.is-current {
+  color: var(--text);
+}
+.nav__links a.is-current::after {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav__links a::after {
+    transition: none;
+  }
+}
+
+/* ------------------------- LIT-EDGE MATERIAL CARDS --------------------- */
+/* A 1px inset top highlight + layered Noir-tinted shadow makes the bento cells
+   and stat cards feel milled from metal. STATIC box-shadow only — it is never
+   added to any element's `transition`, so nothing animates box-shadow and no
+   geometry shifts (the bento/pricing layouts are untouched). */
+.feat {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 4px -2px rgba(12, 24, 31, 0.45),
+    0 18px 32px -22px rgba(12, 24, 31, 0.6);
+}
+.stat {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 14px 28px -22px rgba(12, 24, 31, 0.55);
+}
+
+/* --------------------- REVEAL CHOREOGRAPHY (STAGGER) ------------------- */
+/* `[data-reveal-group]` reveals its direct children in a short cascade as the
+   block enters (effects.js observes it). The hidden start-state is gated behind
+   `.reveal-on` exactly like the single-block reveal, so no-JS / reduced-motion
+   renders everything at rest (fully crawlable, no FOUC). */
+html.reveal-on [data-reveal-group] > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 320ms var(--e-out), transform 320ms var(--e-out);
+  will-change: opacity, transform;
+}
+html.reveal-on [data-reveal-group].is-visible > * {
+  opacity: 1;
+  transform: none;
+}
+html.reveal-on [data-reveal-group].is-visible > *:nth-child(2) {
+  transition-delay: 70ms;
+}
+html.reveal-on [data-reveal-group].is-visible > *:nth-child(3) {
+  transition-delay: 140ms;
+}
+html.reveal-on [data-reveal-group].is-visible > *:nth-child(4) {
+  transition-delay: 210ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.reveal-on [data-reveal-group] > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

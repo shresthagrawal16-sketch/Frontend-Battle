@@ -58,8 +58,9 @@
   /* ---- Spacing / layout ---- */
   --container: 1180px;
   --gutter: clamp(1.25rem, 0.8rem + 2vw, 2.5rem);
-  /* Generous section padding for premium rhythm (max bumped 7.5 → 8.5rem). */
-  --section-y: clamp(4.5rem, 2.8rem + 6.5vw, 8.5rem);
+  /* Editorial section rhythm — BRIEF art-direction calls for 96–160px.
+     clamp floor 6rem (96px) → ceiling 10rem (160px) for that magazine breathing. */
+  --section-y: clamp(6rem, 4rem + 6vw, 10rem);
   --radius: 14px;
   --radius-sm: 9px;
   --radius-pill: 999px;

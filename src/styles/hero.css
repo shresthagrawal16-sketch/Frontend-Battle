@@ -8,6 +8,21 @@
   isolation: isolate;
 }
 
+/* Faint cinematic vignette — corners sink into Noir so the eye is drawn to the
+   headline. Static paint, behind the copy (z-1), above the parallax stage. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    118% 118% at 50% 30%,
+    transparent 54%,
+    rgba(12, 24, 31, 0.5)
+  );
+}
+
 /* ----------------------------------------------------------------------------
    FAKE-3D STAGE (CSS-only, zero library) — depth via layered, parallaxed planes.
    The whole stage sits behind the content (z-index:-1, aria-hidden, no pointer
@@ -30,27 +45,30 @@
   position: absolute;
   inset: 0;
   will-change: transform;
-  transition: transform 300ms var(--e-out);
+  /* Slow, certain settle (BRIEF: "make the parallax SLOW and small-displacement,
+     controlled, cinematic, not busy"). 450ms ease-out, no overshoot. */
+  transition: transform 450ms var(--e-out);
 }
 .hero__par--glow {
   transform: translate3d(
-    calc(var(--mx, 0) * 10px),
-    calc(var(--my, 0) * 10px),
+    calc(var(--mx, 0) * 7px),
+    calc(var(--my, 0) * 7px),
     0
   );
 }
 .hero__par--mesh {
   transform: translate3d(
-    calc(var(--mx, 0) * 20px),
-    calc(var(--my, 0) * 22px),
+    calc(var(--mx, 0) * 13px),
+    calc(var(--my, 0) * 14px),
     0
   );
 }
 .hero__par--shards {
-  /* nearest plane: most travel + a subtle tilt toward the cursor */
-  transform: perspective(1000px)
-    translate3d(calc(var(--mx, 0) * 34px), calc(var(--my, 0) * 34px), 0)
-    rotateX(calc(var(--my, 0) * -6deg)) rotateY(calc(var(--mx, 0) * 6deg));
+  /* nearest plane: most travel + a subtle tilt toward the cursor — kept small
+     so the depth reads cinematic rather than restless. */
+  transform: perspective(1100px)
+    translate3d(calc(var(--mx, 0) * 22px), calc(var(--my, 0) * 22px), 0)
+    rotateX(calc(var(--my, 0) * -4deg)) rotateY(calc(var(--mx, 0) * 4deg));
   transform-style: preserve-3d;
 }
 
@@ -175,7 +193,10 @@
   }
 }
 
-/* Reduced motion: no ambient loops, no parallax tilt (props already neutral). */
+/* Reduced motion: no ambient loops, no parallax tilt (props already neutral).
+   (The kinetic-headline override lives with the .anim-item block at the foot of
+   this file, so it falls AFTER the accent's own animation declaration below and
+   wins the cascade cleanly.) */
 @media (prefers-reduced-motion: reduce) {
   .hero__glow,
   .hero__mesh,
@@ -203,12 +224,23 @@
   max-width: 16ch;
 }
 
-/* Headline accent word painted with the signature warm gradient. */
+/* Headline accent word painted with the signature warm gradient. The gradient
+   is over-sized and its position drifts on a slow loop (kinetic headline) —
+   deferred 700ms so first paint is still, and confined to one word so the
+   repaint footprint stays tiny. Disabled under reduced-motion (below). */
 .hero__title-accent {
   background: var(--grad-warm);
+  background-size: 220% 100%;
+  background-position: 0% 50%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: accent-drift 9s var(--e-inout) 700ms infinite alternate;
+}
+@keyframes accent-drift {
+  to {
+    background-position: 100% 50%;
+  }
 }
 
 .hero__subhead {
@@ -261,11 +293,16 @@
   animation-delay: calc(var(--stagger) * 3);
 }
 
-/* Reduced motion: show everything immediately, no transform. */
+/* Reduced motion: show everything immediately, no transform. Also rests the
+   kinetic headline on its static gradient (placed here, after the accent's
+   animation declaration, so this override wins source order). */
 @media (prefers-reduced-motion: reduce) {
   .anim-item {
     animation: none;
     opacity: 1;
     transform: none;
+  }
+  .hero__title-accent {
+    animation: none;
   }
 }

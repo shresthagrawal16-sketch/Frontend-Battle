@@ -27,14 +27,25 @@ body {
   padding-block: var(--section-y);
 }
 
+/* Anchor offset so in-page jumps clear the 68px sticky nav (no hidden headings).
+   :where() keeps specificity at 0 so nothing here ever out-weighs a component. */
+:where(#hero, #features, #pricing, #proof, #footer, #main) {
+  scroll-margin-top: 5.25rem;
+}
+
 .section--alt {
   background: var(--surface-2);
   border-block: 1px solid var(--border);
 }
 
 /* ---- Headings & section intros ---- */
+/* Wide-tracked uppercase mono eyebrow with a short leading rule — an editorial
+   tell that reads as "section index" and commits to the print-feel identity. */
 .section__eyebrow,
 .hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
   font-family: var(--font-mono);
   font-size: var(--fs-eyebrow);
   font-weight: 600;
@@ -42,6 +53,14 @@ body {
   text-transform: uppercase;
   color: var(--c-forsythia);
   margin-bottom: 0.9rem;
+}
+.section__eyebrow::before,
+.hero__eyebrow::before {
+  content: '';
+  width: 1.75rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
 }
 
 .section__title {

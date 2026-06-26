@@ -24,6 +24,7 @@ import { mountPricing } from './pricing/pricing.js';
 import { mountBento } from './modules/bento.js';
 import { mountHeroParallax } from './modules/hero.js';
 import { mountEffects } from './modules/effects.js';
+import { mountSignature } from './modules/signature.js';
 
 /**
  * Mark the document as hydrated. The CSS entry animation does NOT depend on
@@ -44,6 +45,12 @@ function boot() {
   //     CSS hero entry, and bails out on touch / reduced-motion where relevant.
   mountHeroParallax(document.querySelector('#hero'));
   mountEffects();
+
+  // --- Signature interactions: cursor spotlight, magnetic CTAs, scroll
+  //     progress, nav spy. All pointer/scroll-only, compositor-safe, and
+  //     guarded on touch / reduced-motion. Never reads the pricing or bento
+  //     state — it only decorates the chrome around them.
+  mountSignature();
 }
 
 boot();

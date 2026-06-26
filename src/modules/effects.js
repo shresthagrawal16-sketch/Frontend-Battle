@@ -33,7 +33,10 @@ function initNavScroll() {
  * is allowed), so without it everything renders visible. Never the hero.
  * ------------------------------------------------------------------------- */
 function initReveal() {
-  const els = document.querySelectorAll('[data-reveal]');
+  // `[data-reveal]` fades a block in as one unit; `[data-reveal-group]` does the
+  // same but its CSS staggers the block's direct children for section
+  // choreography. Both share this single observer.
+  const els = document.querySelectorAll('[data-reveal], [data-reveal-group]');
   if (!els.length) return;
 
   if (prefersReduced() || !hasIO()) {
