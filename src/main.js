@@ -21,6 +21,7 @@
  */
 import './styles/main.css';
 import { mountPricing } from './pricing/pricing.js';
+import { mountBento } from './modules/bento.js';
 
 /**
  * Mark the document as hydrated. The CSS entry animation does NOT depend on
@@ -33,9 +34,8 @@ function boot() {
   // --- Phase B: dynamic pricing matrix + isolated currency/billing switch ---
   mountPricing(document.querySelector('#pricing-root'));
 
-  // --- Phase C (wired later): bento ↔ accordion ---
-  // import { mountBento } from './modules/bento.js';
-  // mountBento(document.querySelector('#features'));
+  // --- Phase C: bento (desktop) ↔ accordion (mobile) with context lock ---
+  mountBento(document.querySelector('#bento-root'));
 }
 
 boot();

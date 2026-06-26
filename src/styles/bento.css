@@ -1,0 +1,182 @@
+/* ============================================================================
+   FEATURE 2 — Bento ↔ Accordion (single DOM, CSS-driven layout swap, BRIEF §8)
+   ONE set of <article> nodes. Mobile is the base style (accordion); the bento
+   grid is layered on at ≥768px. Nothing here is duplicated for two trees — the
+   same elements are restyled by the breakpoints below.
+   ============================================================================ */
+
+.bento {
+  --feat-pad: clamp(1rem, 0.85rem + 0.6vw, 1.35rem);
+  --feat-surface: var(--surface);
+  --feat-surface-hover: #15596b; /* one step lighter than nocturnal surface */
+
+  margin-top: 2.5rem;
+  display: grid;
+  gap: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
+}
+
+/* ------------------------------- THE CELL ------------------------------ */
+.feat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--feat-surface);
+  /* Paint-only transitions: bg lightens on hover (micro), border colors on
+     active. Border WIDTH never changes ⇒ zero layout shift, siblings untouched. */
+  transition: background-color var(--t-micro) var(--e-out),
+    border-color var(--t-micro) var(--e-out);
+}
+
+/* Context-lock highlight: subtle Forsythia border + faint warm wash. No scale,
+   no shadow, no geometry change. */
+.feat.is-active {
+  border-color: var(--c-forsythia);
+  background-image: linear-gradient(180deg, rgba(255, 200, 1, 0.07), transparent 55%);
+}
+
+/* ------------------------------ HEADER --------------------------------- */
+.feat__heading {
+  margin: 0;
+  font: inherit; /* it's a layout wrapper for the button, not a type style */
+}
+
+.feat__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: var(--feat-pad);
+  text-align: left;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs-h3);
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.feat__icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--c-forsythia); /* icon inherits the accent via currentColor */
+}
+.feat__icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.feat__title {
+  flex: 1 1 auto;
+  min-width: 0; /* allow the title to wrap instead of overflowing at 320px */
+}
+
+/* chevron-down — rotates 180° on open (accordion only). */
+.feat__chevron {
+  display: inline-flex;
+  flex: none;
+  color: var(--text-muted);
+  transition: transform var(--t-micro) var(--e-out);
+}
+.feat__chevron svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------------------------- COLLAPSIBLE BODY ------------------------- */
+/* grid-template-rows 0fr↔1fr is the height engine: the inner wrapper clips to
+   the row track, so the panel animates open/closed with no JS height reads. */
+.feat__panel {
+  display: grid;
+  grid-template-rows: 1fr; /* default = open (this is the desktop bento state) */
+  transition: grid-template-rows var(--t-reflow) var(--e-inout);
+}
+.feat__panel-inner {
+  overflow: hidden;
+}
+.feat__desc {
+  padding: 0 var(--feat-pad) var(--feat-pad);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+
+/* ============================ MOBILE: ACCORDION ========================= */
+/* ≤767px — the same articles collapse. Only `.is-open` (mirrored by
+   aria-expanded in JS) shows a body; the single-open rule is enforced in JS. */
+@media (max-width: 767px) {
+  .feat__toggle {
+    cursor: pointer;
+  }
+  .feat__panel {
+    grid-template-rows: 0fr; /* collapsed by default */
+  }
+  .feat.is-open .feat__panel {
+    grid-template-rows: 1fr; /* the one open panel */
+  }
+  .feat.is-open .feat__chevron {
+    transform: rotate(180deg);
+  }
+}
+
+/* ============================ DESKTOP: BENTO ============================ */
+/* ≥768px — bodies are always visible (panel stays 1fr from the base rule) and
+   the chevron affordance is irrelevant, so hide it. */
+@media (min-width: 768px) {
+  .feat__chevron {
+    display: none;
+  }
+  .feat__toggle {
+    cursor: default;
+  }
+
+  /* Hover lightens the cell one step (~180ms micro). No scale / shadow /
+     layout — and because each cell owns its own bg, siblings are unaffected. */
+  .feat:hover {
+    background-color: var(--feat-surface-hover);
+  }
+
+  /* Tablet bento: a simple 2-column asymmetric grid (no cramped 4-up). */
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .feat--lg,
+  .feat--wide {
+    grid-column: span 2;
+  }
+  /* .feat--sm spans 1 (default) */
+}
+
+/* ≥1024px — the full asymmetric bento: one 2×2 hero cell, a wide cell, two
+   small cells, then two wide cells. `dense` packs the small cells into the gap
+   beside the hero. */
+@media (min-width: 1024px) {
+  .bento {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(150px, auto);
+    grid-auto-flow: row dense;
+    align-items: stretch;
+  }
+  .feat--lg {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  .feat--wide {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+  .feat--sm {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
+
+/* ---------------------------- REDUCED MOTION --------------------------- */
+/* Snap instead of animating height/rotation/colour (BRIEF §6, §8). */
+@media (prefers-reduced-motion: reduce) {
+  .feat,
+  .feat__panel,
+  .feat__chevron {
+    transition: none;
+  }
+}
