@@ -1,0 +1,173 @@
+/* ============================================================================
+   BASE — body, typography defaults, layout primitives, buttons.
+   ============================================================================ */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  /* Subtle palette texture: two warm radial washes pinned to the top so the
+     Noir field never reads as flat black. Cheap, paint-only, no layout cost. */
+  background-image:
+    radial-gradient(60rem 40rem at 80% -10%, rgba(255, 153, 50, 0.06), transparent 60%),
+    radial-gradient(50rem 36rem at 0% 0%, rgba(17, 76, 90, 0.5), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* ---- Layout primitives ---- */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-y);
+}
+
+.section--alt {
+  background: var(--surface-2);
+  border-block: 1px solid var(--border);
+}
+
+/* ---- Headings & section intros ---- */
+.section__eyebrow,
+.hero__eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-forsythia);
+  margin-bottom: 0.9rem;
+}
+
+.section__title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  max-width: 18ch;
+}
+
+.section__lede {
+  margin-top: 1rem;
+  font-size: var(--fs-lede);
+  color: var(--text-muted);
+  max-width: 60ch;
+}
+
+/* ---- Placeholder roots (Phase B/C mount points) ---- */
+.section__placeholder {
+  margin-top: 2.5rem;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(217, 232, 226, 0.03), transparent);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* ---- Buttons (shared primitive) ---- */
+.btn {
+  --btn-pad-y: 0.7rem;
+  --btn-pad-x: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  white-space: nowrap;
+  /* Micro-motion only: bg/color, never scale or layout (BRIEF §6). */
+  transition: background-color var(--t-micro) var(--e-out),
+    border-color var(--t-micro) var(--e-out), color var(--t-micro) var(--e-out);
+}
+
+.btn--lg {
+  --btn-pad-y: 0.9rem;
+  --btn-pad-x: 1.6rem;
+  font-size: 1rem;
+}
+
+.btn--primary {
+  background: var(--c-forsythia);
+  color: var(--on-accent);
+}
+.btn--primary:hover {
+  background: var(--c-saffron); /* one warm step, no scale/shadow */
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+.btn--ghost:hover {
+  background: rgba(217, 232, 226, 0.08);
+  border-color: var(--c-mint);
+}
+
+/* CTA embedded chevron: translateX +4px on hover, 150ms ease-out (BRIEF §6) */
+.btn__chevron {
+  display: inline-flex;
+  transition: transform 150ms var(--e-out);
+}
+.btn:hover .btn__chevron {
+  transform: translateX(4px);
+}
+
+/* ---- Icon button (search, close, etc.) ---- */
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  transition: background-color var(--t-micro) var(--e-out),
+    color var(--t-micro) var(--e-out);
+}
+.icon-btn:hover {
+  background: rgba(217, 232, 226, 0.08);
+  color: var(--text);
+}
+
+/* ---- Accessibility helpers ---- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--c-forsythia);
+  color: var(--on-accent);
+  font-weight: 600;
+  transition: top var(--t-micro) var(--e-out);
+}
+.skip-link:focus {
+  top: 1rem;
+}

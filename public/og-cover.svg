@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF9932"/>
+      <stop offset="1" stop-color="#FFC801"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#172B36"/>
+  <circle cx="1010" cy="120" r="360" fill="url(#warm)" opacity="0.18"/>
+  <g transform="translate(96 250)">
+    <g fill="#FFC801" transform="scale(4.2)">
+      <path d="M8.372 1.349a.75.75 0 0 0-.744 0l-4.81 2.748L8 7.131l5.182-3.034zM14 5.357L8.75 8.43v6.005l4.872-2.784A.75.75 0 0 0 14 11zm-6.75 9.078V8.43L2 5.357V11c0 .27.144.518.378.651z"/>
+    </g>
+  </g>
+  <text x="180" y="300" font-family="'JetBrains Mono', monospace" font-size="74" font-weight="700" fill="#F1F6F4">Strata</text>
+  <text x="96" y="392" font-family="Inter, sans-serif" font-size="40" font-weight="600" fill="#F1F6F4">Turn raw data streams into decisions, automatically.</text>
+  <text x="96" y="452" font-family="Inter, sans-serif" font-size="28" fill="#D9E8E2" opacity="0.8">AI-driven data automation platform</text>
+</svg>

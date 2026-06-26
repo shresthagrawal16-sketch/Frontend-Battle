@@ -1,0 +1,15 @@
+{
+  "name": "strata",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Strata — AI-driven data automation platform. Vanilla JS + Vite, zero runtime UI/animation libraries.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

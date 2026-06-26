@@ -1,0 +1,7 @@
+/* Style entry — ordered cascade. Vite inlines these @imports at build time.
+   Order matters: tokens → reset → base → layout → hero. */
+@import './tokens.css';
+@import './reset.css';
+@import './base.css';
+@import './layout.css';
+@import './hero.css';

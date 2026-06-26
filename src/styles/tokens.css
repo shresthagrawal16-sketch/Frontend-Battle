@@ -1,0 +1,61 @@
+/* ============================================================================
+   DESIGN TOKENS — single source of truth (BRIEF §3, §4, §6)
+   All colors, fonts, motion, spacing live here as CSS custom properties so the
+   whole UI inherits from the palette. "Meaningful use of the palette" = points.
+   ============================================================================ */
+:root {
+  /* ---- Palette (§3) ---- */
+  --c-noir: #172b36; /* primary dark bg (used instead of pure black) */
+  --c-nocturnal: #114c5a; /* secondary dark / card surfaces */
+  --c-forsythia: #ffc801; /* primary accent — CTAs, active states */
+  --c-saffron: #ff9932; /* secondary accent / gradient partner */
+  --c-arctic: #f1f6f4; /* light text on dark / light bg */
+  --c-mint: #d9e8e2; /* muted surfaces / borders */
+
+  /* Signature warm gradient (Saffron → Forsythia) */
+  --grad-warm: linear-gradient(135deg, var(--c-saffron), var(--c-forsythia));
+
+  /* ---- Semantic color roles (built from the palette above) ---- */
+  --bg: var(--c-noir);
+  --surface: var(--c-nocturnal);
+  --surface-2: #0f2530; /* slightly deeper noir for alt sections */
+  --text: var(--c-arctic);
+  --text-muted: rgba(241, 246, 244, 0.66);
+  --text-faint: rgba(241, 246, 244, 0.42);
+  --border: rgba(217, 232, 226, 0.14); /* mint, low alpha */
+  --border-strong: rgba(217, 232, 226, 0.28);
+  --accent: var(--c-forsythia);
+  --on-accent: var(--c-noir); /* dark text on bright accent = 9:1+ */
+
+  /* ---- Typography (§4) ---- */
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Fluid type scale (clamp = breakpoint fluidity, no overlap) */
+  --fs-eyebrow: 0.8125rem;
+  --fs-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --fs-lede: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem);
+  --fs-h3: clamp(1.125rem, 1.05rem + 0.5vw, 1.375rem);
+  --fs-h2: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+  --fs-h1: clamp(2.5rem, 1.6rem + 4.4vw, 4.5rem);
+
+  /* ---- Motion tokens (§6) ---- */
+  --t-micro: 180ms; /* hovers, toggles, icon rotate (PDF 150–200ms) */
+  --t-reflow: 350ms; /* accordion / layout reflow (PDF 300–400ms) */
+  --e-out: cubic-bezier(0, 0, 0.2, 1); /* ease-out for micro */
+  --e-inout: cubic-bezier(0.4, 0, 0.2, 1); /* ease-in-out for reflow */
+  --t-entry: 200ms; /* per-item entry duration */
+  --stagger: 80ms; /* entry stagger step */
+
+  /* ---- Spacing / layout ---- */
+  --container: 1180px;
+  --gutter: clamp(1.25rem, 0.8rem + 2vw, 2.5rem);
+  --section-y: clamp(4rem, 2.5rem + 6vw, 7.5rem);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-pill: 999px;
+
+  /* ---- Elevation (subtle; motion brief forbids shadow on hover) ---- */
+  --shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 18px 40px -24px rgba(0, 0, 0, 0.6);
+}

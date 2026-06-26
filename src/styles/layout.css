@@ -1,0 +1,172 @@
+/* ============================================================================
+   LAYOUT — header / nav / footer chrome.
+   ============================================================================ */
+
+/* ------------------------------- HEADER -------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(23, 43, 54, 0.72);
+  backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 68px;
+}
+
+.nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+.nav__logo {
+  display: inline-flex;
+  color: var(--c-forsythia); /* cube mark inherits via currentColor */
+}
+.nav__name {
+  color: var(--text);
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  margin-inline: auto; /* center links between brand and actions */
+  font-size: 0.95rem;
+}
+.nav__links a {
+  color: var(--text-muted);
+  transition: color var(--t-micro) var(--e-out);
+}
+.nav__links a:hover {
+  color: var(--text);
+}
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Responsive nav: collapse secondary chrome on small screens.
+   Full mobile menu is out of scope for Phase A — keep brand + primary CTA. */
+@media (max-width: 860px) {
+  .nav__links {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  .nav__search,
+  .btn--ghost {
+    display: none;
+  }
+}
+
+/* ------------------------------- FOOTER -------------------------------- */
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  padding-block: clamp(3rem, 2rem + 4vw, 5rem) 2rem;
+}
+
+.footer__inner {
+  display: grid;
+  grid-template-columns: 1.3fr 2fr;
+  gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+  align-items: start;
+}
+
+.footer__title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+}
+.footer__lede {
+  margin-top: 0.6rem;
+  color: var(--text-muted);
+  max-width: 38ch;
+}
+.footer__form {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.footer__input {
+  flex: 1 1 14rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-pill);
+  background: rgba(217, 232, 226, 0.06);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  transition: border-color var(--t-micro) var(--e-out);
+}
+.footer__input::placeholder {
+  color: var(--text-faint);
+}
+.footer__input:focus {
+  outline: none;
+  border-color: var(--c-forsythia);
+}
+
+.footer__nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.footer__heading {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.9rem;
+}
+.footer__col ul {
+  display: grid;
+  gap: 0.6rem;
+}
+.footer__col a {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  transition: color var(--t-micro) var(--e-out);
+}
+.footer__col a:hover {
+  color: var(--text);
+}
+
+.footer__base {
+  margin-top: clamp(2.5rem, 2rem + 3vw, 4rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  color: var(--text-faint);
+  font-size: 0.875rem;
+}
+.footer__built {
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 760px) {
+  .footer__inner {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 460px) {
+  .footer__nav {
+    grid-template-columns: 1fr 1fr;
+  }
+}

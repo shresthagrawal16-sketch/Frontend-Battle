@@ -1,0 +1,102 @@
+/* ============================================================================
+   HERO — warm-gradient signature + entry orchestration (BRIEF §6).
+   ============================================================================ */
+.hero {
+  position: relative;
+  overflow: clip;
+  padding-block: clamp(4.5rem, 3rem + 8vw, 9rem) var(--section-y);
+  isolation: isolate;
+}
+
+/* Saffron → Forsythia warm-gradient signature, rendered as a soft glow blob
+   behind the hero. Paint-only (no layout impact), sits below content via z-index. */
+.hero__glow {
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 70%;
+  z-index: -1;
+  background: var(--grad-warm);
+  opacity: 0.22;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.hero__inner {
+  max-width: 60rem;
+}
+
+.hero__title {
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  max-width: 16ch;
+}
+
+/* Headline accent word painted with the signature warm gradient. */
+.hero__title-accent {
+  background: var(--grad-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero__subhead {
+  margin-top: 1.4rem;
+  font-size: var(--fs-lede);
+  color: var(--text-muted);
+  max-width: 54ch;
+}
+
+.hero__cta {
+  margin-top: 2.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+/* ----------------------------------------------------------------------------
+   ENTRY ORCHESTRATION (BRIEF §6 hard constraint: total < 500ms, non-blocking)
+   Pure CSS. Each .anim-item fades up; stagger via per-child animation-delay.
+   Timeline: item0 0ms · item1 80ms · item2 160ms · item3 240ms,
+   each 200ms ease-out → last finishes at 440ms (< 500ms).
+   `both` fill-mode applies the hidden start state before the delay (no flash),
+   and holds the final visible state after. Crucially this is 100% CSS, so it
+   never blocks TTI and the semantic DOM is fully present for crawlers.
+   ---------------------------------------------------------------------------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-item {
+  animation: fade-up var(--t-entry) var(--e-out) both;
+}
+.hero__inner .anim-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+.hero__inner .anim-item:nth-child(2) {
+  animation-delay: var(--stagger);
+}
+.hero__inner .anim-item:nth-child(3) {
+  animation-delay: calc(var(--stagger) * 2);
+}
+.hero__inner .anim-item:nth-child(4) {
+  animation-delay: calc(var(--stagger) * 3);
+}
+
+/* Reduced motion: show everything immediately, no transform. */
+@media (prefers-reduced-motion: reduce) {
+  .anim-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

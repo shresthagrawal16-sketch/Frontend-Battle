@@ -1,0 +1,12 @@
+{
+  "name": "Strata — AI-Driven Data Automation Platform",
+  "short_name": "Strata",
+  "description": "Ingest, model, and act on your data in real time. Strata turns raw data streams into decisions, automatically.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#172B36",
+  "theme_color": "#172B36",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" }
+  ]
+}
