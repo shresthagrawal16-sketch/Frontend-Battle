@@ -60,6 +60,13 @@
     <!-- Skip link: keyboard accessibility (counts toward a11y/SEO hygiene). -->
     <a class="skip-link" href="#main">Skip to content</a>
 
+    <!-- Scroll sentinel: when this 1px marker leaves the viewport the sticky nav
+         deepens its frost (see effects.js). No scroll listeners → no jank. -->
+    <div class="scroll-sentinel" aria-hidden="true"></div>
+
+    <!-- Film-grain overlay: subtle inline-SVG noise (~3.5%) over the dark field. -->
+    <div class="grain" aria-hidden="true"></div>
+
     <!-- ============================ HEADER / NAV ============================ -->
     <header class="site-header">
       <nav class="nav" aria-label="Primary">
@@ -105,7 +112,49 @@
     <main id="main">
       <!-- ----------------------------- HERO ----------------------------- -->
       <section id="hero" class="hero" aria-labelledby="hero-title">
-        <div class="hero__glow" aria-hidden="true"></div>
+        <!-- Fake-3D stage: layered parallax planes (glow · mesh · floating
+             shards). Decorative only — aria-hidden, pointer-events:none, sits
+             behind the content. Motion is driven by CSS vars from hero.js. -->
+        <div class="hero__stage" aria-hidden="true">
+          <div class="hero__par hero__par--glow"><span class="hero__glow"></span></div>
+          <div class="hero__par hero__par--mesh"><span class="hero__mesh"></span></div>
+          <div class="hero__par hero__par--shards">
+            <span class="hero__shard hero__shard--cube">
+              <span class="hero__shard-in">
+                <svg viewBox="0 0 16 16" role="img" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8.372 1.349a.75.75 0 0 0-.744 0l-4.81 2.748L8 7.131l5.182-3.034zM14 5.357L8.75 8.43v6.005l4.872-2.784A.75.75 0 0 0 14 11zm-6.75 9.078V8.43L2 5.357V11c0 .27.144.518.378.651z"
+                  />
+                </svg>
+              </span>
+            </span>
+            <span class="hero__shard hero__shard--pie">
+              <span class="hero__shard-in">
+                <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+                  <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                    <path d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+                    <path d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+                  </g>
+                </svg>
+              </span>
+            </span>
+            <span class="hero__shard hero__shard--trend">
+              <span class="hero__shard-in">
+                <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 0 1 5.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"
+                  />
+                </svg>
+              </span>
+            </span>
+          </div>
+        </div>
         <div class="container hero__inner">
           <p class="hero__eyebrow anim-item">AI-Driven Data Automation Platform</p>
           <h1 id="hero-title" class="hero__title anim-item">
@@ -140,51 +189,91 @@
       <!-- --------------------------- FEATURES --------------------------- -->
       <!-- Phase C mounts the Bento↔Accordion here (single DOM, CSS-driven swap). -->
       <section id="features" class="section" aria-labelledby="features-title">
+        <div class="aura aura--head" aria-hidden="true"></div>
         <div class="container">
-          <p class="section__eyebrow">Platform</p>
-          <h2 id="features-title" class="section__title">
-            One platform for the entire data lifecycle
-          </h2>
-          <p class="section__lede">
-            From ingestion to insight to action, Strata's modular engine handles it end to
-            end — so your team ships outcomes instead of maintaining plumbing.
-          </p>
+          <div class="section__intro" data-reveal>
+            <p class="section__eyebrow">Platform</p>
+            <h2 id="features-title" class="section__title">
+              One platform for the entire data lifecycle
+            </h2>
+            <p class="section__lede">
+              From ingestion to insight to action, Strata's modular engine handles it end to
+              end — so your team ships outcomes instead of maintaining plumbing.
+            </p>
+          </div>
           <!-- Phase C renders the single set of feature articles here; CSS swaps
                bento grid (desktop) ↔ accordion (mobile) — see src/modules/bento.js. -->
-          <div id="bento-root"></div>
+          <div id="bento-root" data-reveal></div>
         </div>
       </section>
 
       <!-- ---------------------------- PRICING --------------------------- -->
       <!-- Phase B mounts the dynamic pricing matrix + currency/billing switch here. -->
       <section id="pricing" class="section section--alt" aria-labelledby="pricing-title">
+        <div class="aura aura--head" aria-hidden="true"></div>
+        <!-- Centred glow that haloes the popular (middle) pricing card. -->
+        <div class="aura aura--pop" aria-hidden="true"></div>
         <div class="container">
-          <p class="section__eyebrow">Pricing</p>
-          <h2 id="pricing-title" class="section__title">
-            Pricing that scales with your data, not your headcount
-          </h2>
-          <p class="section__lede">
-            Three tiers, three currencies, monthly or annual. Every number is computed from
-            a live pricing matrix — switch currency or billing and only the prices change.
-          </p>
-          <!-- Phase B renders tier cards + isolated price spans into this root. -->
+          <div class="section__intro" data-reveal>
+            <p class="section__eyebrow">Pricing</p>
+            <h2 id="pricing-title" class="section__title">
+              Pricing that scales with your data, not your headcount
+            </h2>
+            <p class="section__lede">
+              Three tiers, three currencies, monthly or annual. Every number is computed from
+              a live pricing matrix — switch currency or billing and only the prices change.
+            </p>
+          </div>
+          <!-- Phase B renders tier cards + isolated price spans into this root.
+               Intentionally NOT data-reveal: the verified DevTools state
+               isolation must stay pristine, so the grid renders at rest. -->
           <div id="pricing-root"></div>
         </div>
       </section>
 
       <!-- ----------------------------- PROOF ---------------------------- -->
       <section id="proof" class="section" aria-labelledby="proof-title">
+        <div class="aura aura--head" aria-hidden="true"></div>
         <div class="container">
-          <p class="section__eyebrow">Proof</p>
-          <h2 id="proof-title" class="section__title">Teams ship faster on Strata</h2>
-          <p class="section__lede">
-            Data, engineering, and operations teams use Strata to collapse weeks of pipeline
-            work into minutes of configuration.
-          </p>
-          <!-- STUB: testimonial carousel (chevron-left/right) + stat counters. -->
-          <div id="proof-root" class="section__placeholder" data-phase="later">
-            <p>Testimonials carousel &amp; stats mount here.</p>
+          <div class="section__intro" data-reveal>
+            <p class="section__eyebrow">Proof</p>
+            <h2 id="proof-title" class="section__title">Teams ship faster on Strata</h2>
+            <p class="section__lede">
+              Data, engineering, and operations teams use Strata to collapse weeks of pipeline
+              work into minutes of configuration.
+            </p>
           </div>
+
+          <!-- Stats strip — real, crawlable numbers in the HTML; effects.js
+               re-counts them from 0 on scroll-in (IntersectionObserver, ~1000ms
+               ease-out). data-group adds thousands grouping, data-decimals the
+               fraction places. -->
+          <ul class="stats" data-reveal>
+            <li class="stat">
+              <span class="stat__value">
+                <span class="stat__num" data-count-to="2400" data-group="true">2,400</span><span class="stat__suffix">+</span>
+              </span>
+              <span class="stat__label">Teams onboarded</span>
+            </li>
+            <li class="stat">
+              <span class="stat__value">
+                <span class="stat__num" data-count-to="200">200</span><span class="stat__suffix">+</span>
+              </span>
+              <span class="stat__label">Native connectors</span>
+            </li>
+            <li class="stat">
+              <span class="stat__value">
+                <span class="stat__num" data-count-to="14">14</span><span class="stat__suffix">B+</span>
+              </span>
+              <span class="stat__label">Events processed / day</span>
+            </li>
+            <li class="stat">
+              <span class="stat__value">
+                <span class="stat__num" data-count-to="99.9" data-decimals="1">99.9</span><span class="stat__suffix">%</span>
+              </span>
+              <span class="stat__label">Pipeline uptime SLA</span>
+            </li>
+          </ul>
         </div>
       </section>
     </main>
@@ -192,7 +281,7 @@
     <!-- ============================= FOOTER ============================= -->
     <footer id="footer" class="site-footer">
       <div class="container footer__inner">
-        <div class="footer__cta">
+        <div class="footer__cta" data-reveal>
           <h2 class="footer__title">Stay in the loop</h2>
           <p class="footer__lede">
             Product updates, automation patterns, and the occasional benchmark. No spam.

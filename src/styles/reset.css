@@ -19,7 +19,7 @@ html {
 
 body {
   min-height: 100svh;
-  line-height: 1.55;
+  line-height: 1.6; /* relaxed body measure (BRIEF §4 Tier-1 typography) */
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

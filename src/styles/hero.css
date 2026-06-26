@@ -3,25 +3,192 @@
    ============================================================================ */
 .hero {
   position: relative;
-  overflow: clip;
+  overflow: clip; /* clips parallax shards/mesh → never any horizontal scroll */
   padding-block: clamp(4.5rem, 3rem + 8vw, 9rem) var(--section-y);
   isolation: isolate;
 }
 
-/* Saffron → Forsythia warm-gradient signature, rendered as a soft glow blob
-   behind the hero. Paint-only (no layout impact), sits below content via z-index. */
+/* ----------------------------------------------------------------------------
+   FAKE-3D STAGE (CSS-only, zero library) — depth via layered, parallaxed planes.
+   The whole stage sits behind the content (z-index:-1, aria-hidden, no pointer
+   events). hero.js writes two custom props on `.hero` from the cursor:
+       --mx, --my  ∈ [-1, 1]   (offset from hero centre)
+   Each plane consumes them at a different rate (closer planes move more) plus a
+   perspective tilt on the shard plane. The props default to 0, so on touch /
+   reduced-motion / no-JS every transform resolves to neutral — fully static.
+   ---------------------------------------------------------------------------- */
+.hero__stage {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Parallax planes. The transition makes the cursor-follow smooth AND doubles as
+   the settle-back when hero.js zeroes the props on mouse-leave. transform only. */
+.hero__par {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  transition: transform 300ms var(--e-out);
+}
+.hero__par--glow {
+  transform: translate3d(
+    calc(var(--mx, 0) * 10px),
+    calc(var(--my, 0) * 10px),
+    0
+  );
+}
+.hero__par--mesh {
+  transform: translate3d(
+    calc(var(--mx, 0) * 20px),
+    calc(var(--my, 0) * 22px),
+    0
+  );
+}
+.hero__par--shards {
+  /* nearest plane: most travel + a subtle tilt toward the cursor */
+  transform: perspective(1000px)
+    translate3d(calc(var(--mx, 0) * 34px), calc(var(--my, 0) * 34px), 0)
+    rotateX(calc(var(--my, 0) * -6deg)) rotateY(calc(var(--mx, 0) * 6deg));
+  transform-style: preserve-3d;
+}
+
+/* Saffron → Forsythia warm-gradient signature glow blob + slow ambient pulse
+   (a sine-like loop). Delayed past the entry window so first paint stays still. */
 .hero__glow {
   position: absolute;
   inset: -20% -10% auto -10%;
   height: 70%;
-  z-index: -1;
+  display: block;
   background: var(--grad-warm);
   opacity: 0.22;
   filter: blur(90px);
-  pointer-events: none;
+  animation: hero-glow-pulse 16s var(--e-inout) 600ms infinite;
+}
+
+/* Faint technical mesh/grid, masked to a soft radial on the right so it adds
+   depth behind the shards without ever touching the headline's legibility. */
+.hero__mesh {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+      rgba(217, 232, 226, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(217, 232, 226, 0.05) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(
+    62% 62% at 72% 38%,
+    #000 0%,
+    transparent 76%
+  );
+  mask-image: radial-gradient(62% 62% at 72% 38%, #000 0%, transparent 76%);
+  opacity: 0.55;
+  animation: hero-mesh-undulate 18s var(--e-inout) 600ms infinite;
+}
+
+/* Floating accent shards (cube / chart-pie / trend SVGs) in palette colors. The
+   outer span is parallaxed by the plane; the inner span floats on its own loop,
+   so parallax and ambient motion compose without fighting over `transform`. */
+.hero__shard {
+  position: absolute;
+  display: block;
+}
+.hero__shard svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hero__shard-in {
+  display: block;
+  will-change: transform;
+  animation: hero-float 8s var(--e-inout) 600ms infinite;
+}
+.hero__shard--cube {
+  width: 88px;
+  height: 88px;
+  top: 12%;
+  right: 7%;
+  color: var(--c-forsythia);
+  opacity: 0.85;
+}
+.hero__shard--pie {
+  width: 64px;
+  height: 64px;
+  top: 54%;
+  right: 21%;
+  color: var(--c-saffron);
+  opacity: 0.8;
+}
+.hero__shard--pie .hero__shard-in {
+  animation-duration: 9.5s;
+  animation-delay: 0.9s;
+}
+.hero__shard--trend {
+  width: 56px;
+  height: 56px;
+  top: 28%;
+  right: 33%;
+  color: var(--c-mint);
+  opacity: 0.6;
+}
+.hero__shard--trend .hero__shard-in {
+  animation-duration: 7.5s;
+  animation-delay: 0.45s;
+}
+
+@keyframes hero-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.28;
+    transform: translateY(-2%) scale(1.05);
+  }
+}
+@keyframes hero-mesh-undulate {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-1.4%) scale(1.04);
+  }
+}
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(5deg);
+  }
+}
+
+/* Below tablet: drop the shard plane (keeps copy uncluttered + zero overlap). */
+@media (max-width: 800px) {
+  .hero__par--shards {
+    display: none;
+  }
+}
+
+/* Reduced motion: no ambient loops, no parallax tilt (props already neutral). */
+@media (prefers-reduced-motion: reduce) {
+  .hero__glow,
+  .hero__mesh,
+  .hero__shard-in {
+    animation: none;
+  }
+  .hero__par {
+    transition: none;
+  }
 }
 
 .hero__inner {
+  position: relative; /* keep content above the z-index:-1 stage */
   max-width: 60rem;
 }
 
@@ -30,7 +197,9 @@
   font-family: var(--font-mono);
   font-size: var(--fs-h1);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  /* Tighter tracking + ~1.05 leading on the largest mono headline (BRIEF §4). */
+  letter-spacing: -0.03em;
+  line-height: 1.05;
   max-width: 16ch;
 }
 

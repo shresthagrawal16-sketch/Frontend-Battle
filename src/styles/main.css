@@ -1,5 +1,7 @@
 /* Style entry — ordered cascade. Vite inlines these @imports at build time.
-   Order matters: tokens → reset → base → layout → hero. */
+   Order matters: tokens → reset → base → layout → hero → features → effects.
+   effects.css is LAST so its polish (popular-card gradient border, section
+   auras) layers cleanly over the feature styles without editing them. */
 @import './tokens.css';
 @import './reset.css';
 @import './base.css';
@@ -7,3 +9,4 @@
 @import './hero.css';
 @import './pricing.css';
 @import './bento.css';
+@import './effects.css';

@@ -1,0 +1,163 @@
+/* ============================================================================
+   EFFECTS — polish layer that lives "around" the scored features without ever
+   touching the pricing DOM/odometer or the bento context-lock logic.
+   Everything here is paint- or compositor-only (opacity / transform / filter),
+   decorative elements are aria-hidden + pointer-events:none, and every motion
+   has a prefers-reduced-motion fallback (plus the global reset guard).
+   ============================================================================ */
+
+/* ------------------------------ FILM GRAIN ----------------------------- */
+/* A single fixed inline-SVG noise overlay (~3.5%) gives the dark field a subtle
+   filmic texture. Fixed + pointer-events:none ⇒ no scroll repaint, no clicks
+   blocked; sits below the nav (z-50) so chrome stays crisp. Static (no motion). */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* ------------------------------- AURAS --------------------------------- */
+/* Soft Saffron→Forsythia radial glow blobs behind section headings (and behind
+   the centred popular pricing card). Decorative, blurred, low-opacity; the
+   layout box stays within the section so the blur is pure ink-overflow (never a
+   scrollbar). Sections get a stacking context; content rides above at z-index 1. */
+.section {
+  position: relative;
+  isolation: isolate;
+}
+.section > .container {
+  position: relative;
+  z-index: 1;
+}
+.aura {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(70px);
+}
+.aura--head {
+  width: min(560px, 72%);
+  height: 240px;
+  top: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 153, 50, 0.22),
+    rgba(255, 200, 1, 0.1),
+    transparent 70%
+  );
+}
+/* Centred glow that haloes the popular (middle) pricing card. */
+.aura--pop {
+  width: min(440px, 76%);
+  height: 440px;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -28%);
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 200, 1, 0.18),
+    rgba(255, 153, 50, 0.1),
+    transparent 72%
+  );
+}
+
+/* ---------------------------- SCROLL REVEAL ---------------------------- */
+/* IntersectionObserver fade-up. The hidden start state is gated behind the
+   `.reveal-on` flag that effects.js only adds when motion is allowed AND JS is
+   live — so with no-JS or reduced-motion the content is simply visible (no FOUC,
+   fully crawlable). Never applied to the hero (instant render protects TTI). */
+html.reveal-on [data-reveal] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 300ms var(--e-out), transform 300ms var(--e-out);
+  will-change: opacity, transform;
+}
+html.reveal-on [data-reveal].is-visible {
+  opacity: 1;
+  transform: none; /* clears the containing block once settled */
+}
+@media (prefers-reduced-motion: reduce) {
+  html.reveal-on [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ------------------------------- STATS --------------------------------- */
+/* Social-proof strip. Numbers are real, crawlable text in the HTML; stats.js
+   only re-counts them from 0 on scroll-in (tabular-nums keeps digits steady). */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: var(--sp-3) var(--sp-2);
+  border: 1px solid var(--border); /* hairline Mystic Mint border */
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(217, 232, 226, 0.04), transparent);
+}
+.stat__value {
+  display: flex;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(2rem, 1.4rem + 2vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums; /* steady width during count-up */
+}
+.stat__num {
+  display: inline-block;
+}
+.stat__suffix {
+  margin-left: 0.08em;
+  color: var(--c-forsythia);
+}
+.stat__label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 720px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 380px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------- POPULAR PRICING CARD — gradient border ------------- */
+/* Forsythia→Saffron gradient ring on the Pro card via a padding-box/border-box
+   background sandwich. Border WIDTH stays 1px and radius is preserved, so this
+   is purely a repaint of the existing border — no geometry change, and the card
+   is never re-rendered on a currency/billing flip, so the verified state
+   isolation is untouched. (No pricing DOM or odometer CSS is modified.) */
+.tier--popular {
+  border-color: transparent;
+  /* Every layer must be an IMAGE (a non-final solid color is invalid in the
+     `background` shorthand and would drop the whole rule) — so the surface fill
+     is written as a two-stop gradient. padding-box layers fill inside the
+     border; the border-box gradient shows only through the 1px ring. */
+  background:
+    linear-gradient(180deg, rgba(255, 200, 1, 0.08), transparent 42%) padding-box,
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, var(--c-forsythia), var(--c-saffron)) border-box;
+  box-shadow: var(--shadow-pop);
+}

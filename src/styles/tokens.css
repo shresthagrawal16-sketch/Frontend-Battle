@@ -47,15 +47,34 @@
   --t-entry: 200ms; /* per-item entry duration */
   --stagger: 80ms; /* entry stagger step */
 
+  /* ---- Spacing scale (8 / 16 / 24 / 40 / 64 / 96 — premium vertical rhythm) ---- */
+  --sp-1: 0.5rem; /* 8  */
+  --sp-2: 1rem; /* 16 */
+  --sp-3: 1.5rem; /* 24 */
+  --sp-5: 2.5rem; /* 40 */
+  --sp-8: 4rem; /* 64 */
+  --sp-12: 6rem; /* 96 */
+
   /* ---- Spacing / layout ---- */
   --container: 1180px;
   --gutter: clamp(1.25rem, 0.8rem + 2vw, 2.5rem);
-  --section-y: clamp(4rem, 2.5rem + 6vw, 7.5rem);
+  /* Generous section padding for premium rhythm (max bumped 7.5 → 8.5rem). */
+  --section-y: clamp(4.5rem, 2.8rem + 6.5vw, 8.5rem);
   --radius: 14px;
   --radius-sm: 9px;
   --radius-pill: 999px;
 
-  /* ---- Elevation (subtle; motion brief forbids shadow on hover) ---- */
-  --shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.03) inset,
-    0 18px 40px -24px rgba(0, 0, 0, 0.6);
+  /* ---- Elevation ----
+     Stacked, soft, multi-layer shadows tinted with Oceanic Noir (rgb 12 24 31 —
+     a deep noir, never pure black) so depth reads warm against the dark field.
+     Geometry-free (paint only) → safe over the isolated pricing cards. */
+  --shadow-soft: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 2px 4px -2px rgba(12, 24, 31, 0.5),
+    0 10px 20px -10px rgba(12, 24, 31, 0.55),
+    0 28px 50px -28px rgba(12, 24, 31, 0.7);
+  --shadow-pop: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 4px 8px -4px rgba(12, 24, 31, 0.55),
+    0 18px 34px -16px rgba(12, 24, 31, 0.6),
+    0 40px 70px -34px rgba(12, 24, 31, 0.75);
+  --shadow-nav: 0 1px 0 var(--border), 0 12px 30px -20px rgba(12, 24, 31, 0.85);
 }

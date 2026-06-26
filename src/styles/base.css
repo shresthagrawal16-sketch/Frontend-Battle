@@ -48,7 +48,9 @@ body {
   font-family: var(--font-mono);
   font-size: var(--fs-h2);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  /* Tighter negative tracking on large mono headings = premium hierarchy. */
+  letter-spacing: -0.025em;
+  line-height: 1.08;
   max-width: 18ch;
 }
 
@@ -101,11 +103,42 @@ body {
 }
 
 .btn--primary {
+  position: relative;
+  overflow: hidden; /* clips the sheen sweep; outline is drawn outside, uncut */
   background: var(--c-forsythia);
   color: var(--on-accent);
 }
 .btn--primary:hover {
   background: var(--c-saffron); /* one warm step, no scale/shadow */
+}
+
+/* Sheen sweep: a soft light band crosses the CTA on hover via translateX only
+   (compositor-friendly). Base state is parked off-frame + invisible with no
+   transition, so leaving the button snaps it away with no reverse animation. */
+.btn--primary::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 55%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.45),
+    transparent
+  );
+  transform: translateX(-180%) skewX(-18deg);
+  opacity: 0;
+  pointer-events: none;
+}
+.btn--primary:hover::after {
+  transform: translateX(320%) skewX(-18deg);
+  opacity: 1;
+  transition: transform 600ms var(--e-out), opacity 150ms linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn--primary::after {
+    display: none;
+  }
 }
 
 .btn--ghost {

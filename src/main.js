@@ -22,6 +22,8 @@
 import './styles/main.css';
 import { mountPricing } from './pricing/pricing.js';
 import { mountBento } from './modules/bento.js';
+import { mountHeroParallax } from './modules/hero.js';
+import { mountEffects } from './modules/effects.js';
 
 /**
  * Mark the document as hydrated. The CSS entry animation does NOT depend on
@@ -36,6 +38,12 @@ function boot() {
 
   // --- Phase C: bento (desktop) ↔ accordion (mobile) with context lock ---
   mountBento(document.querySelector('#bento-root'));
+
+  // --- Polish layer: hero parallax/tilt + scroll-reveal, nav frost, count-up.
+  //     Pure enhancement — runs after the feature mounts, never blocks the
+  //     CSS hero entry, and bails out on touch / reduced-motion where relevant.
+  mountHeroParallax(document.querySelector('#hero'));
+  mountEffects();
 }
 
 boot();
